@@ -31,13 +31,13 @@ export function App() {
           <nav className="navbar navbar-expand-lg navbar-dark bg-primary mb-4 rounded-3 px-3">
             <ul className="navbar-nav mr-auto">
               <li className="nav-item">
-                <Link to="/invoices" className="nav-link text-white fw-bold">
-                  Faktury
+                <Link to="/persons" className="nav-link text-white fw-bold">
+                  Osoby
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/persons" className="nav-link text-white fw-bold">
-                  Osoby
+                <Link to="/invoices" className="nav-link text-white fw-bold">
+                  Faktury
                 </Link>
               </li>
               <li className="nav-item">
@@ -50,7 +50,7 @@ export function App() {
 
           <Routes>
             {/* Redirect root to /invoices */}
-            <Route index element={<Navigate to="/invoices" />} />
+            <Route index element={<Navigate to="/persons" />} />
 
             {/* Persons -------------------------------------------------- */}
             <Route path="/persons">
