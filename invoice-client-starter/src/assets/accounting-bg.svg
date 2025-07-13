@@ -1,0 +1,11 @@
+<!-- /public/accounting-bg.svg -->
+<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="320" rx="40" fill="#f8fafc"></rect>
+  <rect x="60" y="60" width="200" height="140" rx="16" fill="#e0e7ef"></rect>
+  <rect x="80" y="90" width="40" height="16" rx="4" fill="#8ecae6"></rect>
+  <rect x="80" y="120" width="120" height="16" rx="4" fill="#b7c8dd"></rect>
+  <rect x="80" y="150" width="90" height="16" rx="4" fill="#b7c8dd"></rect>
+  <rect x="140" y="200" width="40" height="60" rx="10" fill="#ffc300"></rect>
+  <rect x="190" y="220" width="30" height="40" rx="10" fill="#40916c"></rect>
+  <rect x="80" y="220" width="50" height="30" rx="10" fill="#e85d04"></rect>
+</svg>
