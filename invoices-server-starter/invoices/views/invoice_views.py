@@ -39,6 +39,9 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_queryset(self):
+        import unicodedata
+        from django.db.models import Q
+
         params = self.request.query_params
         queryset = Invoice.objects.filter(hidden=False)
 
@@ -52,10 +55,37 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         if seller_id:
             queryset = queryset.filter(seller__id=seller_id)
 
-        # Filtr podle názvu produktu
+        # Filtr podle názvu produktu (přesný název ze selectu)
         product = params.get("product")
         if product:
             queryset = queryset.filter(product=product)
+
+        # Filtr podle IČ odběratele (částečná shoda)
+        buyer_ic = params.get("buyerIC")
+        if buyer_ic:
+            queryset = queryset.filter(buyer__identificationNumber__icontains=buyer_ic)
+
+        # Filtr podle IČ dodavatele (částečná shoda)
+        seller_ic = params.get("sellerIC")
+        if seller_ic:
+            queryset = queryset.filter(seller__identificationNumber__icontains=seller_ic)
+
+        # Filtr podle názvu produktu (fulltext, bez diakritiky a case insensitive)
+        product_search = params.get("productSearch")
+        if product_search:
+            def normalize(s):
+                return ''.join(
+                    c for c in unicodedata.normalize('NFD', s)
+                    if unicodedata.category(c) != 'Mn'
+                ).lower()
+
+            # Normální dotaz pro case/diakritika insensitive hledání
+            # Poznámka: V PostgreSQL by šlo použít unaccent. Takhle to děláme v Pythonu.
+            all_ids = [
+                inv.id for inv in queryset
+                if normalize(product_search) in normalize(inv.product or "")
+            ]
+            queryset = queryset.filter(id__in=all_ids)
 
         # Filtr ceny
         min_price = params.get("minPrice")

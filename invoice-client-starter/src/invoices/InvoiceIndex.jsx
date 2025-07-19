@@ -10,10 +10,19 @@ import {
 } from "../utils/api";
 import InvoiceTable from "./InvoiceTable";
 
+// Pomocná funkce na normalizaci (pro hledání bez diakritiky/case)
+const normalize = (str) =>
+  str
+    ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    : "";
+
 const defaultFilters = {
   buyerID: "",
+  buyerIC: "",
   sellerID: "",
+  sellerIC: "",
   product: "",
+  productSearch: "",
   minPrice: "",
   maxPrice: "",
   limit: "",
@@ -49,6 +58,15 @@ export default function InvoiceIndex() {
       } else {
         data = await apiGet("/api/invoices", filterParams);
       }
+
+      // Fulltext pro produkt (case/diakritika insensitive)
+      if (filterParams.productSearch) {
+        const search = normalize(filterParams.productSearch);
+        data = data.filter((inv) =>
+          normalize(inv.product).includes(search)
+        );
+      }
+
       setInvoices([...data].sort((a, b) => a._id - b._id));
     } catch (err) {
       console.error("Chyba při načítání faktur:", err);
@@ -110,9 +128,10 @@ export default function InvoiceIndex() {
       {view === "all" && (
         <form className="mb-4" onSubmit={handleFilter} autoComplete="off">
           <div className="row g-2 align-items-end">
-            <div className="col-md-2 col-sm-6">
+            {/* Odběratel pod sebou */}
+            <div className="col-md-2 col-sm-6 d-flex flex-column">
               <select
-                className="form-select form-select-sm"
+                className="form-select form-select-sm mb-1"
                 name="buyerID"
                 value={filters.buyerID}
                 onChange={handleFilterChange}
@@ -125,10 +144,19 @@ export default function InvoiceIndex() {
                   </option>
                 ))}
               </select>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="buyerIC"
+                value={filters.buyerIC}
+                onChange={handleFilterChange}
+                placeholder="IČ odběratele"
+              />
             </div>
-            <div className="col-md-2 col-sm-6">
+            {/* Dodavatel pod sebou */}
+            <div className="col-md-2 col-sm-6 d-flex flex-column">
               <select
-                className="form-select form-select-sm"
+                className="form-select form-select-sm mb-1"
                 name="sellerID"
                 value={filters.sellerID}
                 onChange={handleFilterChange}
@@ -141,10 +169,19 @@ export default function InvoiceIndex() {
                   </option>
                 ))}
               </select>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="sellerIC"
+                value={filters.sellerIC}
+                onChange={handleFilterChange}
+                placeholder="IČ dodavatele"
+              />
             </div>
-            <div className="col-md-2 col-sm-6">
+            {/* Produkt select + fulltext pod sebou */}
+            <div className="col-md-2 col-sm-6 d-flex flex-column">
               <select
-                className="form-select form-select-sm"
+                className="form-select form-select-sm mb-1"
                 name="product"
                 value={filters.product}
                 onChange={handleFilterChange}
@@ -157,7 +194,17 @@ export default function InvoiceIndex() {
                   </option>
                 ))}
               </select>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="productSearch"
+                value={filters.productSearch}
+                onChange={handleFilterChange}
+                placeholder="Název produktu (část)"
+                autoComplete="off"
+              />
             </div>
+            {/* Cena a limit */}
             <div className="col-md-1 col-sm-6">
               <input
                 className="form-control form-control-sm"
